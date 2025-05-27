@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/common/base.controller.ts"],"sourcesContent":["export const ROLE_ANON = 'anon'\nexport class BaseController {}\n"],"mappings":";AAAO,IAAM,YAAY;AAClB,IAAM,iBAAN,MAAqB;AAAC;","names":[]}

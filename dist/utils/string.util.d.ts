@@ -1,23 +1,23 @@
 /**
- * 判断传入的值是否为true
- * @param {Object} obj   传入值为'true','TRUE',1,'1','on','ON','YES','yes'时,返回true,其他值均返回false
+ * Check if the incoming value is true
+ * @param {Object} obj When the incoming value is 'true', 'TRUE', 1, '1', 'on', 'ON', 'YES', 'yes', return true, otherwise return false
  * @return {boolean}
  */
 declare function isTrue(obj: any): boolean;
 /**
- * 验证ObjectId格式是否正确
+ * Verify if the ObjectId format is correct
  * @param {string} id
  * @return {boolean}
  */
 declare function isObjectId(id: string): boolean;
 /**
- * 10进制 -> 62进制
+ * Decimal to Base62
  * @param {string | number} number
  * @return {string}
  */
 declare function string10to62(number: string | number): string;
 /**
- * 62进制 -> 10 进制
+ * Base62 to Decimal
  * @param {string} numberCode
  * @return {number}
  */
@@ -31,20 +31,20 @@ declare function isUUID(uuid: string): boolean;
 declare function hexToUtf8(hexString: string): string;
 declare function utf8ToHex(utf8String: string): string;
 /**
- * 判断是否是json格式的字符串
+ * Check if the string is in JSON format
  * @param {string} str
  * @return {boolean}
  */
 declare function isJsonString(str: string): boolean;
 /**
- * 检查accountId是否符合规则
- * 4位渠道id_4位游戏id_openid
+ * Check if accountId conforms to the rules
+ * 4-digit channel id_4-digit game id_openid
  * @param accountId
  * @returns
  */
 declare function checkAccountId(accountId: string): boolean;
 /**
- * 将accountId拆分出 渠道id, 游戏id, 和openId
+ * Split accountId into channel id, game id, and openId
  * @param accountId
  * @returns
  */

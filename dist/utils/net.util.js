@@ -7,68 +7,6 @@ var ZError = class {
 };
 
 // src/utils/net.util.ts
-import fetch from "node-fetch";
-var TIMEOUT_ERROR = new Error("timeout");
-async function successfulFetch(request, options) {
-  const response = await fetch(request, options);
-  if (!response.ok) {
-    throw new Error(`Fetch failed with status '${response.status}' for request '${request}'`);
-  }
-  return response;
-}
-async function handleFetch(request, options) {
-  const response = await successfulFetch(request, options);
-  const object = await response.json();
-  return object;
-}
-async function fetchWithErrorHandling({
-  url,
-  options,
-  timeout,
-  errorCodesToCatch
-}) {
-  let result;
-  try {
-    if (timeout) {
-      result = Promise.race([
-        await handleFetch(url, options),
-        new Promise(
-          (_, reject) => setTimeout(() => {
-            reject(TIMEOUT_ERROR);
-          }, timeout)
-        )
-      ]);
-    } else {
-      result = await handleFetch(url, options);
-    }
-  } catch (e) {
-    logOrRethrowError(e, errorCodesToCatch);
-  }
-  return result;
-}
-async function timeoutFetch(url, options, timeout = 500) {
-  return Promise.race([
-    successfulFetch(url, options),
-    new Promise(
-      (_, reject) => setTimeout(() => {
-        reject(TIMEOUT_ERROR);
-      }, timeout)
-    )
-  ]);
-}
-function logOrRethrowError(error, codesToCatch = []) {
-  if (!error) {
-    return;
-  }
-  const includesErrorCodeToCatch = codesToCatch.some(
-    (code) => error.message.includes(`Fetch failed with status '${code}'`)
-  );
-  if (error instanceof Error && (includesErrorCodeToCatch || error.message.includes("Failed to fetch") || error === TIMEOUT_ERROR)) {
-    console.error(error);
-  } else {
-    throw error;
-  }
-}
 function generateHeader() {
   let random = function(start, end) {
     return Math.random() * (end - start) + start | 0;
@@ -91,7 +29,7 @@ function generateHeader() {
 var checkParamsNeeded = (...args) => {
   args.forEach((arg) => {
     if (!arg) {
-      throw new ZError(10, "params mismatch");
+      throw new ZError(10, "parameters mismatch");
     }
   });
 };
@@ -156,13 +94,9 @@ export {
   RE_URL_SCHEME,
   checkParamsNeeded,
   decodeJWT,
-  fetchWithErrorHandling,
   findUrlScheme,
   generateHeader,
   generateKVStr,
-  handleFetch,
-  keyValToObject,
-  successfulFetch,
-  timeoutFetch
+  keyValToObject
 };
 //# sourceMappingURL=net.util.js.map

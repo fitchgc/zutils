@@ -13,7 +13,7 @@ type RetryOptions = {
  */
 declare function retry<T>(promiseFn: () => Promise<T>, options: RetryOptions): Promise<T>;
 /**
- * 构建一个promise, 可以在任意时刻resolve或reject
+ * Creates a promise that can be resolved or rejected at any time.
  * Usage:
  * function delay(ms: number): Promise<void> {
       const deferred = new Deferred<void>();
@@ -44,9 +44,9 @@ declare class Deferred<T = any> {
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
 }
 /**
- * 简单限流的 Promise 队列
+ * A simple promise queue with concurrency control.
  * Usage:
- const q = new PromiseQueue();
+ const q = new PromiseQueue({ concurrency: 2 }); // Set concurrency to 2
  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach((v) => {
   q.add(
     () =>

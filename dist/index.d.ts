@@ -85,8 +85,8 @@ declare function permission(permissions?: string | string[]): (target: BaseContr
  */
 declare function dept(depts?: string | string[]): (target: BaseController, name: string, value: PropertyDescriptor) => void;
 /**
- * 是否需要限流
- * 使用 @fastify/rate-limit
+ * Whether rate limiting is required.
+ * Uses @fastify/rate-limit
  */
 declare function limit(opt?: any): (target: BaseController, name: string, value: PropertyDescriptor) => void;
 

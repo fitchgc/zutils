@@ -8,7 +8,7 @@ declare const getDayBegin: (date: Date) => Date;
 declare const getNDayAgo: (n: number, begin: boolean) => Date;
 declare const getMonthBegin: (date: Date) => Date;
 /**
- * 获取n天前的time
+ * Get the time n days ago
  * @param {number} day
  * @return {number}
  */
@@ -21,17 +21,17 @@ declare function calcBetweenDays(time1: number, time2: number): number;
  */
 declare function isToday(time: number): boolean;
 /**
- * 今天开始的时间
+ * Get the start time of today
  * @return {number}
  */
 declare function todayStart(): number;
 /**
- * 今天结束的时间
+ * Get the end time of today
  * @return {number}
  */
 declare function todayEnd(): number;
 /**
- * 获取本周第一天和最后一天(周一开始)
+ * Get the first and last day of this week (starting from Monday)
  * @return {{startDay: string, endDay: string}}
  */
 declare function getThisWeekData(): {

@@ -5,9 +5,9 @@
  */
 declare function genRandomString(length: number): string;
 /**
- * 根据概率数组获取随机index
+ * Get random index based on probability array
  * @since 1.0.0
- * @param prob_array 概率数组
+ * @param prob_array probability array
  */
 declare function randomWithProb(prob_array: number[]): number;
 declare function uuid(): `${string}-${string}-${string}-${string}-${string}`;

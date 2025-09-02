@@ -30,5 +30,18 @@ declare function checkSign({ secretKey, data, sign, signKeys, }: {
     sign: string;
     signKeys: string[];
 }): boolean;
+/**
+ * Get password input from the user
+ * @returns {Promise<string>} The entered password
+ */
+declare const getPasswordInput: () => Promise<unknown>;
+/**
+ * Encrypts a private key using a password.
+ * @param {*} privateKey
+ * @param {*} password
+ * @returns
+ */
+declare const encryptPrivateKey: (privateKey: any, password: any) => Promise<string>;
+declare const decryptPrivateKey: (encryptedStr: any, password: any) => Promise<string>;
 
-export { aesDecrypt, aesEncrypt, checkSign, createSign, genRandomString, hmac, hmacSha256, md5, randomWithProb, sha1, sha3_256, sha512, shortUuid, uuid };
+export { aesDecrypt, aesEncrypt, checkSign, createSign, decryptPrivateKey, encryptPrivateKey, genRandomString, getPasswordInput, hmac, hmacSha256, md5, randomWithProb, sha1, sha3_256, sha512, shortUuid, uuid };

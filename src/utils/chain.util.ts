@@ -1,6 +1,6 @@
 import { recoverTypedSignature, SignTypedDataVersion } from '@metamask/eth-sig-util'
 //@ts-ignore
-import { soliditySha3, toWei, keccak256, _jsonInterfaceMethodToString, AbiInput, AbiItem } from 'web3-utils'
+import { keccak256, _jsonInterfaceMethodToString, AbiInput, AbiItem } from 'web3-utils'
 import { bytesToHex } from '@noble/hashes/utils'
 import { keccak_256 } from '@noble/hashes/sha3'
 import { recoverPersonalSignature } from '@metamask/eth-sig-util'
@@ -51,32 +51,6 @@ export function buildLoginSignMsg(nonce: string, tips: string) {
   return signObj
 }
 
-export const sign = async ({
-  user,
-  token,
-  amount,
-  saltNonce,
-}: {
-  user: string
-  token: string
-  amount: number | string
-  saltNonce?: string
-}) => {
-  const web3 = new Web3()
-  let privateKey = process.env.SIGN_PRIVATE_KEY
-  const acc = web3.eth.accounts.privateKeyToAccount(privateKey)
-  const account = web3.eth.accounts.wallet.add(acc)
-  const executor = account.address
-  const amountBn = toWei(amount + '')
-  const chainId = process.env.CHAIN
-  const claimContract = process.env.CLAIM_CONTRACT
-  const startTime = (Date.now() / 1000) | 0
-  saltNonce = saltNonce || ((Math.random() * 1000) | 0) + ''
-  let signStr = soliditySha3.apply(this, [user, token, claimContract, chainId, amountBn, startTime, saltNonce])
-  let signature = await web3.eth.sign(signStr, executor)
-  signature = signature.replace(/00$/, '1b').replace(/01$/, '1c')
-  return { token, amount: amountBn, startTime, saltNonce, signature }
-}
 /**
  * convert address to EIP55 format
  * doc: https://eips.ethereum.org/EIPS/eip-55
@@ -135,7 +109,7 @@ const parseOne = (input: AbiInput, value: any) => {
 }
 
 export const decodeEvent = (abi: AbiItem, eventData: { data: string; topics: string[] }) => {
-  const abiInputs = abi.inputs
+  const abiInputs = [...abi.inputs] as AbiInput[] // Create mutable copy
   let result = web3abi.decodeLog(abiInputs, eventData.data, eventData.topics.slice(1))
   let decodedData: any = {}
   for (let i = 0; i < abiInputs.length; i++) {

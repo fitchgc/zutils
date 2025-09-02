@@ -4,6 +4,7 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -57,6 +58,7 @@ function renderFromTokenMinimalUnit(tokenValue, decimals, decimalsToShow = 5) {
   }
   return renderMinimalUnit;
 }
+__name(renderFromTokenMinimalUnit, "renderFromTokenMinimalUnit");
 function fromTokenMinimalUnit(minimalInput, decimals) {
   minimalInput = addHexPrefix(Number(minimalInput).toString(16));
   let minimal = safeNumberToBN(minimalInput);
@@ -77,6 +79,7 @@ function fromTokenMinimalUnit(minimalInput, decimals) {
   }
   return value;
 }
+__name(fromTokenMinimalUnit, "fromTokenMinimalUnit");
 function renderFromWei(value, decimalsToShow = 5) {
   let renderWei = "0";
   if (value) {
@@ -91,16 +94,20 @@ function renderFromWei(value, decimalsToShow = 5) {
   }
   return renderWei;
 }
+__name(renderFromWei, "renderFromWei");
 function calcTokenValueToSend(value, decimals) {
   return value ? (value * Math.pow(10, decimals)).toString(16) : 0;
 }
+__name(calcTokenValueToSend, "calcTokenValueToSend");
 function isDecimal(value) {
   return Number.isFinite(parseFloat(value)) && !Number.isNaN(parseFloat(value)) && !isNaN(+value);
 }
+__name(isDecimal, "isDecimal");
 function toBN(value) {
   return import_web3.default.utils.toBN(value);
 }
-var addHexPrefix = (str) => {
+__name(toBN, "toBN");
+var addHexPrefix = /* @__PURE__ */ __name((str) => {
   if (typeof str !== "string" || str.match(/^-?0x/u)) {
     return str;
   }
@@ -111,22 +118,28 @@ var addHexPrefix = (str) => {
     return str.replace("-", "-0x");
   }
   return `0x${str}`;
-};
+}, "addHexPrefix");
 function safeNumberToBN(value) {
   const safeValue = fastSplit(value.toString()) || "0";
   return numberToBN(safeValue);
 }
+__name(safeNumberToBN, "safeNumberToBN");
 function fastSplit(value, divider = ".") {
   value += "";
-  const [from, to] = [value.indexOf(divider), 0];
+  const [from, to] = [
+    value.indexOf(divider),
+    0
+  ];
   return value.substring(from, to) || value;
 }
+__name(fastSplit, "fastSplit");
 function stripHexPrefix(str) {
   if (typeof str !== "string") {
     return str;
   }
   return str.slice(0, 2) === "0x" ? str.slice(2) : str;
 }
+__name(stripHexPrefix, "stripHexPrefix");
 function numberToBN(arg) {
   if (typeof arg === "string" || typeof arg === "number") {
     var multiplier = import_web3.default.utils.toBN(1);
@@ -149,13 +162,13 @@ function numberToBN(arg) {
       return import_web3.default.utils.toBN(arg.toString(10));
     }
   }
-  throw new Error(
-    "[number-to-bn] while converting number " + JSON.stringify(arg) + " to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported."
-  );
+  throw new Error("[number-to-bn] while converting number " + JSON.stringify(arg) + " to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.");
 }
+__name(numberToBN, "numberToBN");
 function checkRadixLegal(radix) {
   return radix >= 2 && radix <= 62;
 }
+__name(checkRadixLegal, "checkRadixLegal");
 function transformCharToNum(letter, base) {
   if (base <= 36) {
     letter = letter.toLowerCase();
@@ -171,16 +184,13 @@ function transformCharToNum(letter, base) {
   }
   return 0;
 }
+__name(transformCharToNum, "transformCharToNum");
 function transformNumToChar(num, alphabet) {
   alphabet = alphabet || "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return alphabet.charAt(num);
 }
-function convert({
-  numStr,
-  base,
-  to,
-  alphabet
-}) {
+__name(transformNumToChar, "transformNumToChar");
+function convert({ numStr, base, to, alphabet }) {
   if (base === to || !checkRadixLegal(base) || !checkRadixLegal(to)) {
     return numStr;
   }
@@ -203,6 +213,7 @@ function convert({
   }
   return result;
 }
+__name(convert, "convert");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   addHexPrefix,

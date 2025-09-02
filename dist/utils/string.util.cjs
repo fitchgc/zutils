@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -40,9 +41,11 @@ module.exports = __toCommonJS(string_util_exports);
 function isTrue(obj) {
   return obj === "true" || obj === "TRUE" || obj === "True" || obj === "on" || obj === "ON" || obj === true || obj === 1 || obj === "1" || obj === "YES" || obj === "yes";
 }
+__name(isTrue, "isTrue");
 function isObjectId(id) {
   return /^[a-fA-F0-9]{24}$/.test(id);
 }
+__name(isObjectId, "isObjectId");
 var base62Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function string10to62(number) {
   const chars = base62Alphabet.split("");
@@ -56,6 +59,7 @@ function string10to62(number) {
   } while (qutient);
   return arr.join("");
 }
+__name(string10to62, "string10to62");
 function string62to10(numberCode) {
   const chars = base62Alphabet;
   const radix = chars.length;
@@ -68,8 +72,9 @@ function string62to10(numberCode) {
   }
   return originNumber;
 }
+__name(string62to10, "string62to10");
 var base58Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-var hexToBase58 = (hexString) => {
+var hexToBase58 = /* @__PURE__ */ __name((hexString) => {
   const bytes = hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16));
   let base58String = "";
   let num = BigInt("0x" + hexString);
@@ -79,8 +84,8 @@ var hexToBase58 = (hexString) => {
     base58String = base58Alphabet[Number(remainder)] + base58String;
   }
   return base58String;
-};
-var base58ToHex = (base58String) => {
+}, "hexToBase58");
+var base58ToHex = /* @__PURE__ */ __name((base58String) => {
   const base58Length = base58String.length;
   let num = BigInt(0);
   for (let i = 0; i < base58Length; i++) {
@@ -91,8 +96,8 @@ var base58ToHex = (base58String) => {
     num = num * BigInt(58) + BigInt(charIndex);
   }
   return num.toString(16);
-};
-var hexToBase32 = (hexString) => {
+}, "base58ToHex");
+var hexToBase32 = /* @__PURE__ */ __name((hexString) => {
   const bytes = hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16));
   const base32Alphabet = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
   let base32String = "";
@@ -103,7 +108,7 @@ var hexToBase32 = (hexString) => {
     base32String = base32Alphabet[Number(remainder)] + base32String;
   }
   return base32String;
-};
+}, "hexToBase32");
 var reNormalUUID = /^[0-9a-fA-F-]{36}$/;
 var reLongUUID = /^[0-9a-fA-F]{32}$/;
 var n = /-/g;
@@ -116,6 +121,7 @@ function compressUuid(e, t = false) {
   var r = true === t ? 2 : 5;
   return compressHex(e, r);
 }
+__name(compressUuid, "compressUuid");
 var CHARS_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 function compressHex(e, r) {
   var i, n2 = e.length;
@@ -128,19 +134,23 @@ function compressHex(e, r) {
   }
   return s + o.join("");
 }
+__name(compressHex, "compressHex");
 function isUUID(uuid) {
   return reNormalUUID.test(uuid);
 }
+__name(isUUID, "isUUID");
 function hexToUtf8(hexString) {
   let _hexString = hexString.replace(/^0x/, "");
   let buffer = Buffer.from(_hexString, "hex");
   return buffer.toString("utf8");
 }
+__name(hexToUtf8, "hexToUtf8");
 function utf8ToHex(utf8String) {
   const buffer = Buffer.from(utf8String, "utf8");
   const hexString = buffer.toString("hex");
   return hexString;
 }
+__name(utf8ToHex, "utf8ToHex");
 function isJsonString(str) {
   try {
     if (typeof JSON.parse(str) == "object") {
@@ -150,19 +160,27 @@ function isJsonString(str) {
   }
   return false;
 }
+__name(isJsonString, "isJsonString");
 function checkAccountId(accountId) {
   return /^\d{4}_\d{4,6}_.+$/.test(accountId);
 }
+__name(checkAccountId, "checkAccountId");
 function parseGameAccountId(accountId) {
   const arr = accountId.split("_");
   const gameId = arr[1];
   const channel = arr[0];
   const openId = arr[2];
-  return { gameId, channel, openId };
+  return {
+    gameId,
+    channel,
+    openId
+  };
 }
+__name(parseGameAccountId, "parseGameAccountId");
 function checkAddress(address) {
   return /^0x[0-9a-fA-F]{40}$/.test(address);
 }
+__name(checkAddress, "checkAddress");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   base58ToHex,

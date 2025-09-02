@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -24,8 +25,10 @@ __export(base_controller_exports, {
 });
 module.exports = __toCommonJS(base_controller_exports);
 var ROLE_ANON = "anon";
-var BaseController = class {
+var _BaseController = class _BaseController {
 };
+__name(_BaseController, "BaseController");
+var BaseController = _BaseController;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   BaseController,

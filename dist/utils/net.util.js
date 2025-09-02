@@ -1,19 +1,30 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
 // src/common/ZError.ts
-var ZError = class {
+var _ZError = class _ZError {
   constructor(statusCode, message) {
+    __publicField(this, "code");
+    __publicField(this, "statusCode");
+    __publicField(this, "message");
+    __publicField(this, "name");
     this.statusCode = statusCode;
     this.message = message;
   }
 };
+__name(_ZError, "ZError");
+var ZError = _ZError;
 
 // src/utils/net.util.ts
 function generateHeader() {
-  let random = function(start, end) {
+  let random = /* @__PURE__ */ __name(function(start, end) {
     return Math.random() * (end - start) + start | 0;
-  };
-  let getIp = function() {
+  }, "random");
+  let getIp = /* @__PURE__ */ __name(function() {
     return `${random(1, 254)}.${random(1, 254)}.${random(1, 254)}.${random(1, 254)}`;
-  };
+  }, "getIp");
   let time = Date.now();
   let useragent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${70 + Math.random() * 10 | 0}.0.4324.${Math.random() * 100 | 0} Safari/537.36`;
   const ip = getIp();
@@ -26,22 +37,15 @@ function generateHeader() {
     "Content-Type": "application/json"
   };
 }
-var checkParamsNeeded = (...args) => {
+__name(generateHeader, "generateHeader");
+var checkParamsNeeded = /* @__PURE__ */ __name((...args) => {
   args.forEach((arg) => {
     if (!arg) {
       throw new ZError(10, "parameters mismatch");
     }
   });
-};
-function generateKVStr({
-  data = {},
-  sort = false,
-  encode = false,
-  ignoreNull = true,
-  splitChar = "&",
-  equalChar = "=",
-  uri = ""
-}) {
+}, "checkParamsNeeded");
+function generateKVStr({ data = {}, sort = false, encode = false, ignoreNull = true, splitChar = "&", equalChar = "=", uri = "" }) {
   const keys = Object.keys(data);
   sort && keys.sort();
   let result = "";
@@ -63,6 +67,7 @@ function generateKVStr({
   }
   return result;
 }
+__name(generateKVStr, "generateKVStr");
 function keyValToObject(str, splitChar = "&", equalChar = "=") {
   let result = {};
   if (!str) {
@@ -75,6 +80,7 @@ function keyValToObject(str, splitChar = "&", equalChar = "=") {
   }
   return result;
 }
+__name(keyValToObject, "keyValToObject");
 var RE_URL_SCHEME = /^(.+?):\/\/.+?$/;
 function findUrlScheme(url) {
   let result = url.match(RE_URL_SCHEME);
@@ -83,13 +89,13 @@ function findUrlScheme(url) {
   }
   return result[1];
 }
+__name(findUrlScheme, "findUrlScheme");
 function decodeJWT(token) {
   let strings = token.split(".");
-  var userinfo = JSON.parse(
-    decodeURIComponent(encodeURIComponent(window.atob(strings[1].replace(/-/g, "+").replace(/_/g, "/"))))
-  );
+  var userinfo = JSON.parse(decodeURIComponent(encodeURIComponent(window.atob(strings[1].replace(/-/g, "+").replace(/_/g, "/")))));
   return userinfo;
 }
+__name(decodeJWT, "decodeJWT");
 export {
   RE_URL_SCHEME,
   checkParamsNeeded,

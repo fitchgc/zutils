@@ -23,18 +23,6 @@ declare function buildLoginSignMsg(nonce: string, tips: string): {
         nonce: string;
     };
 };
-declare const sign: ({ user, token, amount, saltNonce, }: {
-    user: string;
-    token: string;
-    amount: number | string;
-    saltNonce?: string;
-}) => Promise<{
-    token: string;
-    amount: string;
-    startTime: number;
-    saltNonce: string;
-    signature: string;
-}>;
 /**
  * convert address to EIP55 format
  * doc: https://eips.ethereum.org/EIPS/eip-55
@@ -49,4 +37,4 @@ declare const decodeEvent: (abi: AbiItem, eventData: {
     topics: string[];
 }) => any;
 
-export { buildLoginSignMsg, checkPersionalSign, decodeEvent, formatAddress, getTopics, recoverTypedSignatureV4, sign, toEIP55 };
+export { buildLoginSignMsg, checkPersionalSign, decodeEvent, formatAddress, getTopics, recoverTypedSignatureV4, toEIP55 };

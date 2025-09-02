@@ -1,25 +1,25 @@
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
-};
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
 // src/common/ZError.ts
-var ZError = class {
+var _ZError = class _ZError {
   constructor(statusCode, message) {
+    __publicField(this, "code");
+    __publicField(this, "statusCode");
+    __publicField(this, "message");
+    __publicField(this, "name");
     this.statusCode = statusCode;
     this.message = message;
   }
 };
+__name(_ZError, "ZError");
+var ZError = _ZError;
 
 // src/decorators/singleton.ts
 var SINGLETON_KEY = Symbol();
-var singleton = (classTarget) => new Proxy(classTarget, {
+var singleton = /* @__PURE__ */ __name((classTarget) => new Proxy(classTarget, {
   construct(target, argumentsList, newTarget) {
     if (target.prototype !== newTarget.prototype) {
       return Reflect.construct(target, argumentsList, newTarget);
@@ -29,12 +29,19 @@ var singleton = (classTarget) => new Proxy(classTarget, {
     }
     return target[SINGLETON_KEY];
   }
-});
+}), "singleton");
 
 // src/common/SyncLocker.ts
-var SyncLocker = class {
+function _ts_decorate(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+__name(_ts_decorate, "_ts_decorate");
+var _SyncLocker = class _SyncLocker {
   constructor() {
-    this.map = /* @__PURE__ */ new Map();
+    __publicField(this, "map", /* @__PURE__ */ new Map());
   }
   lock(req) {
     const key = `${req.method}:${req.url}:${req.user?.id || ""}`;
@@ -61,22 +68,28 @@ var SyncLocker = class {
     return this.map.has(key);
   }
 };
-SyncLocker = __decorateClass([
+__name(_SyncLocker, "SyncLocker");
+var SyncLocker = _SyncLocker;
+SyncLocker = _ts_decorate([
   singleton
 ], SyncLocker);
 
 // src/common/base.controller.ts
 var ROLE_ANON = "anon";
-var BaseController = class {
+var _BaseController = class _BaseController {
 };
+__name(_BaseController, "BaseController");
+var BaseController = _BaseController;
 
 // src/common/AsyncQueue.ts
-function createAsyncQueue(opts = { dedupeConcurrent: false }) {
+function createAsyncQueue(opts = {
+  dedupeConcurrent: false
+}) {
   const { dedupeConcurrent } = opts;
   let queue = [];
   let running;
   let nextPromise = new DeferredPromise();
-  const push = (task) => {
+  const push = /* @__PURE__ */ __name((task) => {
     let taskPromise = new DeferredPromise();
     if (dedupeConcurrent) {
       queue = [];
@@ -90,62 +103,93 @@ function createAsyncQueue(opts = { dedupeConcurrent: false }) {
     });
     if (!running) running = start();
     return taskPromise.promise;
-  };
-  const start = async () => {
+  }, "push");
+  const start = /* @__PURE__ */ __name(async () => {
     while (queue.length) {
       const task = queue.shift();
       await task().catch(() => {
       });
     }
     running = void 0;
-  };
+  }, "start");
   return {
     push,
-    flush: () => running || Promise.resolve(),
+    flush: /* @__PURE__ */ __name(() => running || Promise.resolve(), "flush"),
     get size() {
       return queue.length;
     }
   };
 }
-var createAsyncQueues = (opts = { dedupeConcurrent: false }) => {
+__name(createAsyncQueue, "createAsyncQueue");
+var createAsyncQueues = /* @__PURE__ */ __name((opts = {
+  dedupeConcurrent: false
+}) => {
   const queues = {};
-  const push = (queueId, task) => {
+  const push = /* @__PURE__ */ __name((queueId, task) => {
     if (!queues[queueId]) queues[queueId] = createAsyncQueue(opts);
     return queues[queueId].push(task);
-  };
-  const flush = (queueId) => {
+  }, "push");
+  const flush = /* @__PURE__ */ __name((queueId) => {
     if (!queues[queueId]) queues[queueId] = createAsyncQueue(opts);
     return queues[queueId].flush();
+  }, "flush");
+  return {
+    push,
+    flush
   };
-  return { push, flush };
-};
-var DeferredPromise = class {
+}, "createAsyncQueues");
+var _a;
+var DeferredPromise = (_a = class {
   constructor() {
-    this.started = false;
-    this.resolve = () => {
-    };
-    this.reject = () => {
-    };
+    __publicField(this, "started", false);
+    __publicField(this, "resolve", /* @__PURE__ */ __name(() => {
+    }, "resolve"));
+    __publicField(this, "reject", /* @__PURE__ */ __name(() => {
+    }, "reject"));
+    __publicField(this, "promise");
     this.promise = new Promise((res, rej) => {
       this.resolve = res;
       this.reject = rej;
     });
   }
-};
+}, __name(_a, "DeferredPromise"), _a);
 
 // src/redis/ZRedisClient.ts
-import { createClient } from "redis";
+import { ClientOpts, createClient } from "redis";
 import { promisify } from "util";
-var ZRedisClient = class {
+function _ts_decorate2(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+__name(_ts_decorate2, "_ts_decorate");
+function _ts_metadata(k, v) {
+  if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+}
+__name(_ts_metadata, "_ts_metadata");
+var _ZRedisClient = class _ZRedisClient {
   constructor(opts) {
-    this.subscriptions = {};
-    this.handleSubscription = (channel, message) => {
+    __publicField(this, "pub");
+    __publicField(this, "sub");
+    __publicField(this, "subscribeAsync");
+    __publicField(this, "unsubscribeAsync");
+    __publicField(this, "publishAsync");
+    __publicField(this, "subscriptions", {});
+    __publicField(this, "smembersAsync");
+    __publicField(this, "sismemberAsync");
+    __publicField(this, "hgetAsync");
+    __publicField(this, "hlenAsync");
+    __publicField(this, "pubsubAsync");
+    __publicField(this, "incrAsync");
+    __publicField(this, "decrAsync");
+    __publicField(this, "handleSubscription", /* @__PURE__ */ __name((channel, message) => {
       if (this.subscriptions[channel]) {
         for (let i = 0, l = this.subscriptions[channel].length; i < l; i++) {
           this.subscriptions[channel][i](JSON.parse(message));
         }
       }
-    };
+    }, "handleSubscription"));
     this.sub = createClient(opts);
     this.pub = createClient(opts);
     this.sub.setMaxListeners(0);
@@ -389,22 +433,42 @@ var ZRedisClient = class {
     return await this.decrAsync(key);
   }
 };
-ZRedisClient = __decorateClass([
-  singleton
+__name(_ZRedisClient, "ZRedisClient");
+var ZRedisClient = _ZRedisClient;
+ZRedisClient = _ts_decorate2([
+  singleton,
+  _ts_metadata("design:type", Function),
+  _ts_metadata("design:paramtypes", [
+    typeof ClientOpts === "undefined" ? Object : ClientOpts
+  ])
 ], ZRedisClient);
 
 // src/decorators/router.ts
-var RouterData = class {
+var _RouterData = class _RouterData {
+  constructor() {
+    __publicField(this, "target");
+    __publicField(this, "method");
+    __publicField(this, "path");
+    __publicField(this, "fun");
+  }
 };
-var RouterMap = class {
+__name(_RouterData, "RouterData");
+var RouterData = _RouterData;
+var _RouterMap = class _RouterMap {
 };
-RouterMap.decoratedRouters = /* @__PURE__ */ new Map();
+__name(_RouterMap, "RouterMap");
+__publicField(_RouterMap, "decoratedRouters", /* @__PURE__ */ new Map());
+var RouterMap = _RouterMap;
 function router(route) {
   return (target, name, value) => {
     if (!route) {
       const controller = target.constructor.name;
       const controllerName = controller.toLowerCase().replace(".controller", "");
-      route = "all " + ["", controllerName, name].join("/");
+      route = "all " + [
+        "",
+        controllerName,
+        name
+      ].join("/");
     }
     const split = route.split(" ");
     if (split.length > 2) {
@@ -420,19 +484,24 @@ function router(route) {
     if (RouterMap.decoratedRouters.has(key)) {
       let objCurrent = RouterMap.decoratedRouters.get(key);
       if (!objCurrent.data) {
-        objCurrent.data = [routerData];
+        objCurrent.data = [
+          routerData
+        ];
       } else {
         objCurrent.data.push(routerData);
       }
       RouterMap.decoratedRouters.set(target[name], objCurrent);
     } else {
       let routerObj = {
-        data: [routerData]
+        data: [
+          routerData
+        ]
       };
       RouterMap.decoratedRouters.set(target[name], routerObj);
     }
   };
 }
+__name(router, "router");
 function role(roles) {
   return (target, name, value) => {
     let roleList = [];
@@ -440,11 +509,15 @@ function role(roles) {
       if (Array.isArray(roles)) {
         roleList = roles;
       } else {
-        roleList = [roles];
+        roleList = [
+          roles
+        ];
       }
     }
     const key = target[name];
-    let roleObj = { roles: roleList };
+    let roleObj = {
+      roles: roleList
+    };
     if (RouterMap.decoratedRouters.has(key)) {
       let objCurrent = RouterMap.decoratedRouters.get(key);
       Object.assign(objCurrent, roleObj);
@@ -454,9 +527,12 @@ function role(roles) {
     }
   };
 }
+__name(role, "role");
 function permission(permissions) {
   return (target, name, value) => {
-    let permissionList = [[]];
+    let permissionList = [
+      []
+    ];
     if (permissions) {
       if (Array.isArray(permissions)) {
         let arr = [];
@@ -465,11 +541,15 @@ function permission(permissions) {
         }
         permissionList = arr;
       } else {
-        permissionList = [permissions.split(":")];
+        permissionList = [
+          permissions.split(":")
+        ];
       }
     }
     const key = target[name];
-    let permissionObj = { permissions: permissionList };
+    let permissionObj = {
+      permissions: permissionList
+    };
     if (RouterMap.decoratedRouters.has(key)) {
       let objCurrent = RouterMap.decoratedRouters.get(key);
       Object.assign(objCurrent, permissionObj);
@@ -479,6 +559,7 @@ function permission(permissions) {
     }
   };
 }
+__name(permission, "permission");
 function dept(depts) {
   return (target, name, value) => {
     let deptList = [];
@@ -486,11 +567,15 @@ function dept(depts) {
       if (Array.isArray(depts)) {
         deptList = depts;
       } else {
-        deptList = [depts];
+        deptList = [
+          depts
+        ];
       }
     }
     const key = target[name];
-    let deptObj = { depts: deptList };
+    let deptObj = {
+      depts: deptList
+    };
     if (RouterMap.decoratedRouters.has(key)) {
       let objCurrent = RouterMap.decoratedRouters.get(key);
       Object.assign(objCurrent, deptObj);
@@ -500,10 +585,13 @@ function dept(depts) {
     }
   };
 }
+__name(dept, "dept");
 function limit(opt) {
   return (target, name, value) => {
     const key = target[name];
-    let limitObj = { limit: opt || true };
+    let limitObj = {
+      limit: opt || true
+    };
     if (RouterMap.decoratedRouters.has(key)) {
       let objCurrent = RouterMap.decoratedRouters.get(key);
       Object.assign(objCurrent, limitObj);
@@ -513,6 +601,7 @@ function limit(opt) {
     }
   };
 }
+__name(limit, "limit");
 export {
   BaseController,
   ROLE_ANON,

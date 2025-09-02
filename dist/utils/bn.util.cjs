@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -29,10 +30,10 @@ __export(bn_util_exports, {
   toWei: () => toWei
 });
 module.exports = __toCommonJS(bn_util_exports);
-var isHexStrict = (hex) => typeof hex === "string" && /^((-)?0x[0-9a-f]+|(0x))$/i.test(hex);
-var isHex = (hex) => typeof hex === "number" || typeof hex === "bigint" || typeof hex === "string" && /^((-0x|0x|-)?[0-9a-f]+|(0x))$/i.test(hex);
+var isHexStrict = /* @__PURE__ */ __name((hex) => typeof hex === "string" && /^((-)?0x[0-9a-f]+|(0x))$/i.test(hex), "isHexStrict");
+var isHex = /* @__PURE__ */ __name((hex) => typeof hex === "number" || typeof hex === "bigint" || typeof hex === "string" && /^((-0x|0x|-)?[0-9a-f]+|(0x))$/i.test(hex), "isHex");
 var base = BigInt(10);
-var expo10 = (expo) => base ** BigInt(expo);
+var expo10 = /* @__PURE__ */ __name((expo) => base ** BigInt(expo), "expo10");
 var ethUnitMap = {
   noether: BigInt("0"),
   wei: BigInt(1),
@@ -62,11 +63,17 @@ var ethUnitMap = {
   gether: expo10(27),
   tether: expo10(30)
 };
-var hexToNumber = (value) => {
+var hexToNumber = /* @__PURE__ */ __name((value) => {
   if (!isHexStrict(value)) {
     throw new Error("Invalid hex string");
   }
-  const [negative, hexValue] = value.startsWith("-") ? [true, value.slice(1)] : [false, value];
+  const [negative, hexValue] = value.startsWith("-") ? [
+    true,
+    value.slice(1)
+  ] : [
+    false,
+    value
+  ];
   const num = BigInt(hexValue);
   if (num > Number.MAX_SAFE_INTEGER) {
     return negative ? -num : num;
@@ -75,8 +82,8 @@ var hexToNumber = (value) => {
     return num;
   }
   return negative ? -1 * Number(num) : Number(num);
-};
-var toNumber = (value) => {
+}, "hexToNumber");
+var toNumber = /* @__PURE__ */ __name((value) => {
   if (typeof value === "number") {
     return value;
   }
@@ -91,8 +98,8 @@ var toNumber = (value) => {
   } catch {
     throw new Error("ivalid number: " + value);
   }
-};
-var toBigInt = (value) => {
+}, "toNumber");
+var toBigInt = /* @__PURE__ */ __name((value) => {
   if (typeof value === "number") {
     return BigInt(value);
   }
@@ -106,11 +113,11 @@ var toBigInt = (value) => {
     return BigInt(value.replace(/,/g, ""));
   }
   throw new Error("invalid number" + value);
-};
-var toBigWei = (number, unit = "ether") => {
+}, "toBigInt");
+var toBigWei = /* @__PURE__ */ __name((number, unit = "ether") => {
   return toBigInt(toWei(number, unit));
-};
-var toWei = (number, unit = "ether") => {
+}, "toBigWei");
+var toWei = /* @__PURE__ */ __name((number, unit = "ether") => {
   const denomination = ethUnitMap[unit];
   if (!denomination) {
     throw new Error("error unit: " + unit);
@@ -125,8 +132,8 @@ var toWei = (number, unit = "ether") => {
     return updatedValue.toString();
   }
   return updatedValue.toString().padStart(decimals, "0").slice(0, -decimals);
-};
-var fromWei = (number, unit = "ether") => {
+}, "toWei");
+var fromWei = /* @__PURE__ */ __name((number, unit = "ether") => {
   const denomination = ethUnitMap[unit];
   if (!denomination) {
     throw new Error("invalid unit: " + unit);
@@ -146,7 +153,7 @@ var fromWei = (number, unit = "ether") => {
     return integer;
   }
   return `${integer}.${fraction}`;
-};
+}, "fromWei");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ethUnitMap,

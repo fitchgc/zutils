@@ -210,12 +210,12 @@ const decrypt = async function (v3Keystore: any, password: string, nonStrict?: b
     }
   }
   var ciphertext = Buffer.from(cryptoObj.ciphertext, 'hex');
-  var mac = sha3(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext])).replace('0x', '');
+  var mac = sha3(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
   if (mac !== cryptoObj.mac) {
       throw new Error('Key derivation failed - possibly wrong password');
   }
-  var decipher = crypto.createDecipheriv(cryptoObj.cipher, derivedKey.slice(0, 16), Buffer.from(cryptoObj.cipherparams.iv, 'hex'));
-  var seed = '0x' + Buffer.from([...decipher.update(ciphertext), ...decipher.final()]).toString('hex');
+  var decipher = crypto.createDecipheriv(cryptoObj.cipher, derivedKey.slice(0, 16), Uint8Array.from(Buffer.from(cryptoObj.cipherparams.iv, 'hex')));
+  var seed = '0x' + Buffer.from([...decipher.update(Uint8Array.from(ciphertext)), ...decipher.final()]).toString('hex');
   return seed;
 }
 
@@ -252,15 +252,15 @@ const encrypt = async function (privateKey: string, password: string, options?: 
       throw new Error('Argon2 key derivation failed: ' + error.message);
     }
   }
-  var cipher = crypto.createCipheriv(options.cipher || 'aes-128-ctr', derivedKey.slice(0, 16), iv);
+  var cipher = crypto.createCipheriv(options.cipher || 'aes-128-ctr', derivedKey.slice(0, 16), Uint8Array.from(iv));
   if (!cipher) {
       throw new Error('Unsupported cipher');
   }
   var ciphertext = Buffer.from([
-      ...cipher.update(Buffer.from(privateKey.replace('0x', ''), 'hex')),
+      ...cipher.update(Uint8Array.from(Buffer.from(privateKey.replace('0x', ''), 'hex'))),
       ...cipher.final()
   ]);
-  var mac = sha3(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext])).replace('0x', '');
+  var mac = sha3(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
   return {
     ciphertext: ciphertext.toString('hex'),
     cipherparams: {

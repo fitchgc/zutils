@@ -1,6 +1,9 @@
 import crypto from 'crypto'
 import CryptoJS from 'crypto-js'
 import { compressUuid } from './string.util'
+import { syncScrypt } from 'scrypt-js';
+import { sha3 } from 'web3-utils';
+import argon2 from 'argon2';
 
 /**
  * use crypto.randomBytes to generate random string
@@ -143,4 +146,161 @@ export function checkSign({
   console.log(signStr)
   let sign1 = hmacSha256(signStr, secretKey)
   return sign1 === sign
+}
+
+
+/**
+ * Get password input from the user
+ * @returns {Promise<string>} The entered password
+ */
+export const getPasswordInput = () => {
+  return new Promise((resolve) => {
+    process.stdout.write('Please enter password: ')
+    process.stdin.setRawMode(true)
+    process.stdin.resume()
+    process.stdin.setEncoding('utf8')
+    
+    let password = ''
+
+    process.stdin.on('data', (key: string) => {
+      if (key === '\r' || key === '\n') {
+        // Enter key pressed
+        process.stdin.setRawMode(false)
+        process.stdin.pause()
+        process.stdout.write('\n')
+        resolve(password)
+      } else if (key === '\u0003') {
+        // Ctrl+C pressed
+        process.exit(1)
+      } else if (key === '\u007f' || key === '\b') {
+        // Backspace pressed
+        if (password.length > 0) {
+          password = password.slice(0, -1)
+          // Don't show any visual feedback for backspace
+        }
+      } else {
+        // Regular character
+        password += key
+        // Don't show any characters (completely silent input like shell password)
+      }
+    })
+  })
+}
+
+const decrypt = async function (v3Keystore: any, password: string, nonStrict?: boolean) {
+  var json = (!!v3Keystore && typeof v3Keystore === 'object') ? v3Keystore : JSON.parse(nonStrict ? v3Keystore.toLowerCase() : v3Keystore);
+  const cryptoObj = json.crypto || json;
+  const kdfparams = cryptoObj.kdfparams;
+  let derivedKey;
+  if (cryptoObj.kdf === 'scrypt') {
+    derivedKey = syncScrypt(Buffer.from(password), Buffer.from(kdfparams.salt, 'hex'), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
+  } else if (cryptoObj.kdf === 'argon2') {
+    try {
+      derivedKey = await argon2.hash(password, {
+        salt: Buffer.from(kdfparams.salt, 'hex'),
+        hashLength: kdfparams.dklen,
+        timeCost: kdfparams.t,
+        memoryCost: kdfparams.m,
+        parallelism: kdfparams.p,
+        type: argon2.argon2id,
+        raw: true
+      });
+    } catch (error) {
+      throw new Error('Argon2 key derivation failed: ' + error.message);
+    }
+  }
+  var ciphertext = Buffer.from(cryptoObj.ciphertext, 'hex');
+  var mac = sha3(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext])).replace('0x', '');
+  if (mac !== cryptoObj.mac) {
+      throw new Error('Key derivation failed - possibly wrong password');
+  }
+  var decipher = crypto.createDecipheriv(cryptoObj.cipher, derivedKey.slice(0, 16), Buffer.from(cryptoObj.cipherparams.iv, 'hex'));
+  var seed = '0x' + Buffer.from([...decipher.update(ciphertext), ...decipher.final()]).toString('hex');
+  return seed;
+}
+
+const encrypt = async function (privateKey: string, password: string, options?: any) {
+  options = options || {};
+  var salt = options.salt || crypto.randomBytes(32);
+  var iv = options.iv || crypto.randomBytes(16);
+  var derivedKey;
+  var kdf = options.kdf || 'scrypt';
+  var kdfparams: any = {
+      dklen: options.dklen || 32,
+      salt: salt.toString('hex')
+  };
+  if (kdf === 'scrypt') {
+    kdfparams.n = options.n || 8192; // 2048 4096 8192 16384
+    kdfparams.r = options.r || 8;
+    kdfparams.p = options.p || 1;
+    derivedKey = syncScrypt(Buffer.from(password), Buffer.from(kdfparams.salt, 'hex'), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
+  } else if (kdf === 'argon2') {
+    kdfparams.t = options.t || 3; // time cost (iterations)
+    kdfparams.m = options.m || 4096; // memory cost in KB
+    kdfparams.p = options.p || 1; // parallelism
+    try {
+      derivedKey = await argon2.hash(password, {
+        salt: Buffer.from(kdfparams.salt, 'hex'),
+        hashLength: kdfparams.dklen,
+        timeCost: kdfparams.t,
+        memoryCost: kdfparams.m,
+        parallelism: kdfparams.p,
+        type: argon2.argon2id,
+        raw: true
+      });
+    } catch (error) {
+      throw new Error('Argon2 key derivation failed: ' + error.message);
+    }
+  }
+  var cipher = crypto.createCipheriv(options.cipher || 'aes-128-ctr', derivedKey.slice(0, 16), iv);
+  if (!cipher) {
+      throw new Error('Unsupported cipher');
+  }
+  var ciphertext = Buffer.from([
+      ...cipher.update(Buffer.from(privateKey.replace('0x', ''), 'hex')),
+      ...cipher.final()
+  ]);
+  var mac = sha3(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext])).replace('0x', '');
+  return {
+    ciphertext: ciphertext.toString('hex'),
+    cipherparams: {
+        iv: iv.toString('hex')
+    },
+    cipher: options.cipher || 'aes-128-ctr',
+    kdf: kdf,
+    kdfparams: kdfparams,
+    mac: mac.toString()
+  }
+}
+/**
+ * Encrypts a private key using a password.
+ * @param {*} privateKey 
+ * @param {*} password 
+ * @returns 
+ */
+export const encryptPrivateKey = async (privateKey, password) => {
+   const encryptedData = await encrypt(privateKey, password, { kdf: 'argon2' });
+   const { ciphertext, cipherparams, mac, kdfparams } = encryptedData;
+  return `${cipherparams.iv}${kdfparams.salt}${mac}${ciphertext}`;
+}
+
+export const decryptPrivateKey = async (encryptedStr, password) => {
+  const iv = encryptedStr.slice(0, 32);
+  const salt = encryptedStr.slice(32, 96);
+  const mac = encryptedStr.slice(96, 160);
+  const ciphertext = encryptedStr.slice(160);
+  return await decrypt({ 
+    ciphertext, 
+    cipherparams: { iv }, 
+    cipher: "aes-128-ctr", 
+    kdf: 'argon2', 
+    mac, 
+    kdfparams: { 
+      salt,
+      dklen: 32,
+      t: 3,
+      m: 4096,
+      p: 1
+    } 
+  }, password);
 }

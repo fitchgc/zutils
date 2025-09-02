@@ -1,7 +1,8 @@
 import crypto from 'crypto'
 import CryptoJS from 'crypto-js'
 import { compressUuid } from './string.util'
-import { syncScrypt } from 'scrypt-js';
+import pkg from 'scrypt-js';
+const { syncScrypt } = pkg;
 import { sha3 } from 'web3-utils';
 import argon2 from 'argon2';
 

@@ -81,9 +81,10 @@ function compressHex(e, r) {
 __name(compressHex, "compressHex");
 
 // src/utils/security.util.ts
-var import_scrypt_js = require("scrypt-js");
+var import_scrypt_js = __toESM(require("scrypt-js"), 1);
 var import_web3_utils = require("web3-utils");
 var import_argon2 = __toESM(require("argon2"), 1);
+var { syncScrypt } = import_scrypt_js.default;
 function genRandomString(length) {
   return import_crypto.default.randomBytes(Math.ceil(length / 2)).toString("hex").slice(0, length);
 }
@@ -226,7 +227,7 @@ var decrypt = /* @__PURE__ */ __name(async function(v3Keystore, password, nonStr
   const kdfparams = cryptoObj.kdfparams;
   let derivedKey;
   if (cryptoObj.kdf === "scrypt") {
-    derivedKey = (0, import_scrypt_js.syncScrypt)(Buffer.from(password), Buffer.from(kdfparams.salt, "hex"), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
+    derivedKey = syncScrypt(Buffer.from(password), Buffer.from(kdfparams.salt, "hex"), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
   } else if (cryptoObj.kdf === "argon2") {
     try {
       derivedKey = await import_argon2.default.hash(password, {
@@ -271,7 +272,7 @@ var encrypt = /* @__PURE__ */ __name(async function(privateKey, password, option
     kdfparams.n = options.n || 8192;
     kdfparams.r = options.r || 8;
     kdfparams.p = options.p || 1;
-    derivedKey = (0, import_scrypt_js.syncScrypt)(Buffer.from(password), Buffer.from(kdfparams.salt, "hex"), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
+    derivedKey = syncScrypt(Buffer.from(password), Buffer.from(kdfparams.salt, "hex"), kdfparams.n, kdfparams.r, kdfparams.p, kdfparams.dklen);
   } else if (kdf === "argon2") {
     kdfparams.t = options.t || 3;
     kdfparams.m = options.m || 4096;

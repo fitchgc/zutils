@@ -34,9 +34,10 @@ function compressHex(e, r) {
 __name(compressHex, "compressHex");
 
 // src/utils/security.util.ts
-import { syncScrypt } from "scrypt-js";
+import pkg from "scrypt-js";
 import { sha3 } from "web3-utils";
 import argon2 from "argon2";
+var { syncScrypt } = pkg;
 function genRandomString(length) {
   return crypto.randomBytes(Math.ceil(length / 2)).toString("hex").slice(0, length);
 }

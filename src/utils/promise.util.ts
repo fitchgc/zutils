@@ -26,7 +26,7 @@ export function retry<T>(promiseFn: () => Promise<T>, options: RetryOptions): Pr
     } catch (err) {
       if (
         retries < maxRetries &&
-        whitelistErrors.some(whitelistedError => err instanceof whitelistedError.constructor)
+        (whitelistErrors.length === 0 || whitelistErrors.some(whitelistedError => err instanceof whitelistedError.constructor))
       ) {
         await new Promise(resolve => setTimeout(resolve, 1000 * 2 ** retries)) // Exponential backoff
         retries++

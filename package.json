@@ -32,7 +32,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@metamask/eth-sig-util": "^7.0.3",
     "argon2": "^0.44.0",
     "crypto-js": "^4.2.0",
     "ethers": "^6.15.0",

@@ -9,7 +9,8 @@ Integrates some commonly used utility classes for convenient development.
 yarn add zutils@git+https://github.com/fitchgc/zutils.git
 yarn add zutils@git+https://github.com/fitchgc/zutils.git#tagname
 # or
-npm install zutils@git+https://github.com/fitchgc/zutils.git
+npm install git+https://github.com/fitchgc/zutils.git
+
 ```
 
 ```typescript

@@ -1,8 +1,6 @@
-import { recoverTypedSignature, SignTypedDataVersion } from '@metamask/eth-sig-util'
 import { bytesToHex } from '@noble/hashes/utils'
 import { keccak_256 } from '@noble/hashes/sha3'
-import { recoverPersonalSignature } from '@metamask/eth-sig-util'
-import { Interface, LogDescription, keccak256 } from 'ethers'
+import { Interface, LogDescription, keccak256, verifyMessage, verifyTypedData } from 'ethers'
 
 // Define ABI types locally since we're removing web3-utils
 interface AbiInput {
@@ -21,11 +19,7 @@ interface AbiItem {
 }
 
 export function recoverTypedSignatureV4(signObj: any, signature: string) {
-  return recoverTypedSignature({
-    data: signObj,
-    signature,
-    version: SignTypedDataVersion.V4,
-  })
+  return verifyTypedData(signObj.domain, signObj.types, signObj.message, signature)
 }
 
 export function formatAddress(address: string) {
@@ -88,8 +82,8 @@ export function checkPersionalSign(message: string, address: string, signature: 
   if (!signature.startsWith('0x')) {
     signature = '0x' + signature
   }
-  const recovered = recoverPersonalSignature({ data: message, signature })
-  return recovered === address
+  const recovered = verifyMessage(message, signature)
+  return recovered.toLowerCase() === address.toLowerCase()
 }
 
 // Helper function to generate function signature string like _jsonInterfaceMethodToString

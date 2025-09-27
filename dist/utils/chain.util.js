@@ -1,13 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// src/utils/chain.util.ts
-import { recoverTypedSignature, SignTypedDataVersion } from "@metamask/eth-sig-util";
-
-// node_modules/@noble/hashes/esm/cryptoNode.js
-import * as nc from "node:crypto";
-var crypto = nc && typeof nc === "object" && "webcrypto" in nc ? nc.webcrypto : void 0;
-
 // node_modules/@noble/hashes/esm/utils.js
 var u8a = /* @__PURE__ */ __name((a) => a instanceof Uint8Array, "u8a");
 var u32 = /* @__PURE__ */ __name((arr) => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4)), "u32");
@@ -15,9 +8,9 @@ var isLE = new Uint8Array(new Uint32Array([
   287454020
 ]).buffer)[0] === 68;
 if (!isLE) throw new Error("Non little-endian hardware is not supported");
-var hexes = Array.from({
+var hexes = /* @__PURE__ */ Array.from({
   length: 256
-}, (v, i) => i.toString(16).padStart(2, "0"));
+}, (_, i) => i.toString(16).padStart(2, "0"));
 function bytesToHex(bytes2) {
   if (!u8a(bytes2)) throw new Error("Uint8Array expected");
   let hex = "";
@@ -46,6 +39,7 @@ var _Hash = class _Hash {
 };
 __name(_Hash, "Hash");
 var Hash = _Hash;
+var toStr = {}.toString;
 function wrapConstructor(hashCons) {
   const hashC = /* @__PURE__ */ __name((msg) => hashCons().update(toBytes(msg)).digest(), "hashC");
   const tmp = hashCons();
@@ -70,21 +64,11 @@ function number(n) {
   if (!Number.isSafeInteger(n) || n < 0) throw new Error(`Wrong positive integer: ${n}`);
 }
 __name(number, "number");
-function bool(b) {
-  if (typeof b !== "boolean") throw new Error(`Expected boolean, not ${b}`);
-}
-__name(bool, "bool");
 function bytes(b, ...lengths) {
   if (!(b instanceof Uint8Array)) throw new Error("Expected Uint8Array");
   if (lengths.length > 0 && !lengths.includes(b.length)) throw new Error(`Expected Uint8Array of length ${lengths}, not of length=${b.length}`);
 }
 __name(bytes, "bytes");
-function hash(hash2) {
-  if (typeof hash2 !== "function" || typeof hash2.create !== "function") throw new Error("Hash should be wrapped by utils.wrapConstructor");
-  number(hash2.outputLen);
-  number(hash2.blockLen);
-}
-__name(hash, "hash");
 function exists(instance, checkFinished = true) {
   if (instance.destroyed) throw new Error("Hash instance has been destroyed");
   if (checkFinished && instance.finished) throw new Error("Hash#digest() has already been called");
@@ -98,19 +82,10 @@ function output(out, instance) {
   }
 }
 __name(output, "output");
-var assert = {
-  number,
-  bool,
-  bytes,
-  hash,
-  exists,
-  output
-};
-var assert_default = assert;
 
 // node_modules/@noble/hashes/esm/_u64.js
-var U32_MASK64 = BigInt(2 ** 32 - 1);
-var _32n = BigInt(32);
+var U32_MASK64 = /* @__PURE__ */ BigInt(2 ** 32 - 1);
+var _32n = /* @__PURE__ */ BigInt(32);
 function fromBig(n, le = false) {
   if (le) return {
     h: Number(n & U32_MASK64),
@@ -138,58 +113,10 @@ function split(lst, le = false) {
   ];
 }
 __name(split, "split");
-var toBig = /* @__PURE__ */ __name((h, l) => BigInt(h >>> 0) << _32n | BigInt(l >>> 0), "toBig");
-var shrSH = /* @__PURE__ */ __name((h, l, s) => h >>> s, "shrSH");
-var shrSL = /* @__PURE__ */ __name((h, l, s) => h << 32 - s | l >>> s, "shrSL");
-var rotrSH = /* @__PURE__ */ __name((h, l, s) => h >>> s | l << 32 - s, "rotrSH");
-var rotrSL = /* @__PURE__ */ __name((h, l, s) => h << 32 - s | l >>> s, "rotrSL");
-var rotrBH = /* @__PURE__ */ __name((h, l, s) => h << 64 - s | l >>> s - 32, "rotrBH");
-var rotrBL = /* @__PURE__ */ __name((h, l, s) => h >>> s - 32 | l << 64 - s, "rotrBL");
-var rotr32H = /* @__PURE__ */ __name((h, l) => l, "rotr32H");
-var rotr32L = /* @__PURE__ */ __name((h, l) => h, "rotr32L");
 var rotlSH = /* @__PURE__ */ __name((h, l, s) => h << s | l >>> 32 - s, "rotlSH");
 var rotlSL = /* @__PURE__ */ __name((h, l, s) => l << s | h >>> 32 - s, "rotlSL");
 var rotlBH = /* @__PURE__ */ __name((h, l, s) => l << s - 32 | h >>> 64 - s, "rotlBH");
 var rotlBL = /* @__PURE__ */ __name((h, l, s) => h << s - 32 | l >>> 64 - s, "rotlBL");
-function add(Ah, Al, Bh, Bl) {
-  const l = (Al >>> 0) + (Bl >>> 0);
-  return {
-    h: Ah + Bh + (l / 2 ** 32 | 0) | 0,
-    l: l | 0
-  };
-}
-__name(add, "add");
-var add3L = /* @__PURE__ */ __name((Al, Bl, Cl) => (Al >>> 0) + (Bl >>> 0) + (Cl >>> 0), "add3L");
-var add3H = /* @__PURE__ */ __name((low, Ah, Bh, Ch) => Ah + Bh + Ch + (low / 2 ** 32 | 0) | 0, "add3H");
-var add4L = /* @__PURE__ */ __name((Al, Bl, Cl, Dl) => (Al >>> 0) + (Bl >>> 0) + (Cl >>> 0) + (Dl >>> 0), "add4L");
-var add4H = /* @__PURE__ */ __name((low, Ah, Bh, Ch, Dh) => Ah + Bh + Ch + Dh + (low / 2 ** 32 | 0) | 0, "add4H");
-var add5L = /* @__PURE__ */ __name((Al, Bl, Cl, Dl, El) => (Al >>> 0) + (Bl >>> 0) + (Cl >>> 0) + (Dl >>> 0) + (El >>> 0), "add5L");
-var add5H = /* @__PURE__ */ __name((low, Ah, Bh, Ch, Dh, Eh) => Ah + Bh + Ch + Dh + Eh + (low / 2 ** 32 | 0) | 0, "add5H");
-var u64 = {
-  fromBig,
-  split,
-  toBig,
-  shrSH,
-  shrSL,
-  rotrSH,
-  rotrSL,
-  rotrBH,
-  rotrBL,
-  rotr32H,
-  rotr32L,
-  rotlSH,
-  rotlSL,
-  rotlBH,
-  rotlBL,
-  add,
-  add3L,
-  add3H,
-  add4L,
-  add4H,
-  add5H,
-  add5L
-};
-var u64_default = u64;
 
 // node_modules/@noble/hashes/esm/sha3.js
 var [SHA3_PI, SHA3_ROTL, _SHA3_IOTA] = [
@@ -197,12 +124,12 @@ var [SHA3_PI, SHA3_ROTL, _SHA3_IOTA] = [
   [],
   []
 ];
-var _0n = BigInt(0);
-var _1n = BigInt(1);
-var _2n = BigInt(2);
-var _7n = BigInt(7);
-var _256n = BigInt(256);
-var _0x71n = BigInt(113);
+var _0n = /* @__PURE__ */ BigInt(0);
+var _1n = /* @__PURE__ */ BigInt(1);
+var _2n = /* @__PURE__ */ BigInt(2);
+var _7n = /* @__PURE__ */ BigInt(7);
+var _256n = /* @__PURE__ */ BigInt(256);
+var _0x71n = /* @__PURE__ */ BigInt(113);
 for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
   [x, y] = [
     y,
@@ -213,13 +140,13 @@ for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
   let t = _0n;
   for (let j = 0; j < 7; j++) {
     R = (R << _1n ^ (R >> _7n) * _0x71n) % _256n;
-    if (R & _2n) t ^= _1n << (_1n << BigInt(j)) - _1n;
+    if (R & _2n) t ^= _1n << (_1n << /* @__PURE__ */ BigInt(j)) - _1n;
   }
   _SHA3_IOTA.push(t);
 }
-var [SHA3_IOTA_H, SHA3_IOTA_L] = u64_default.split(_SHA3_IOTA, true);
-var rotlH = /* @__PURE__ */ __name((h, l, s) => s > 32 ? u64_default.rotlBH(h, l, s) : u64_default.rotlSH(h, l, s), "rotlH");
-var rotlL = /* @__PURE__ */ __name((h, l, s) => s > 32 ? u64_default.rotlBL(h, l, s) : u64_default.rotlSL(h, l, s), "rotlL");
+var [SHA3_IOTA_H, SHA3_IOTA_L] = /* @__PURE__ */ split(_SHA3_IOTA, true);
+var rotlH = /* @__PURE__ */ __name((h, l, s) => s > 32 ? rotlBH(h, l, s) : rotlSH(h, l, s), "rotlH");
+var rotlL = /* @__PURE__ */ __name((h, l, s) => s > 32 ? rotlBL(h, l, s) : rotlSL(h, l, s), "rotlL");
 function keccakP(s, rounds = 24) {
   const B = new Uint32Array(5 * 2);
   for (let round = 24 - rounds; round < 24; round++) {
@@ -271,7 +198,7 @@ var _Keccak = class _Keccak extends Hash {
     this.posOut = 0;
     this.finished = false;
     this.destroyed = false;
-    assert_default.number(outputLen);
+    number(outputLen);
     if (0 >= this.blockLen || this.blockLen >= 200) throw new Error("Sha3 supports only keccak-f1600 function");
     this.state = new Uint8Array(200);
     this.state32 = u32(this.state);
@@ -282,7 +209,7 @@ var _Keccak = class _Keccak extends Hash {
     this.pos = 0;
   }
   update(data) {
-    assert_default.exists(this);
+    exists(this);
     const { blockLen, state } = this;
     data = toBytes(data);
     const len = data.length;
@@ -303,8 +230,8 @@ var _Keccak = class _Keccak extends Hash {
     this.keccak();
   }
   writeInto(out) {
-    assert_default.exists(this, false);
-    assert_default.bytes(out);
+    exists(this, false);
+    bytes(out);
     this.finish();
     const bufferOut = this.state;
     const { blockLen } = this;
@@ -322,11 +249,11 @@ var _Keccak = class _Keccak extends Hash {
     return this.writeInto(out);
   }
   xof(bytes2) {
-    assert_default.number(bytes2);
+    number(bytes2);
     return this.xofInto(new Uint8Array(bytes2));
   }
   digestInto(out) {
-    assert_default.output(out, this);
+    output(out, this);
     if (this.finished) throw new Error("digest() was already called");
     this.writeInto(out);
     this.destroy();
@@ -357,27 +284,22 @@ var _Keccak = class _Keccak extends Hash {
 __name(_Keccak, "Keccak");
 var Keccak = _Keccak;
 var gen = /* @__PURE__ */ __name((suffix, blockLen, outputLen) => wrapConstructor(() => new Keccak(blockLen, suffix, outputLen)), "gen");
-var sha3_224 = gen(6, 144, 224 / 8);
-var sha3_256 = gen(6, 136, 256 / 8);
-var sha3_384 = gen(6, 104, 384 / 8);
-var sha3_512 = gen(6, 72, 512 / 8);
-var keccak_224 = gen(1, 144, 224 / 8);
-var keccak_256 = gen(1, 136, 256 / 8);
-var keccak_384 = gen(1, 104, 384 / 8);
-var keccak_512 = gen(1, 72, 512 / 8);
+var sha3_224 = /* @__PURE__ */ gen(6, 144, 224 / 8);
+var sha3_256 = /* @__PURE__ */ gen(6, 136, 256 / 8);
+var sha3_384 = /* @__PURE__ */ gen(6, 104, 384 / 8);
+var sha3_512 = /* @__PURE__ */ gen(6, 72, 512 / 8);
+var keccak_224 = /* @__PURE__ */ gen(1, 144, 224 / 8);
+var keccak_256 = /* @__PURE__ */ gen(1, 136, 256 / 8);
+var keccak_384 = /* @__PURE__ */ gen(1, 104, 384 / 8);
+var keccak_512 = /* @__PURE__ */ gen(1, 72, 512 / 8);
 var genShake = /* @__PURE__ */ __name((suffix, blockLen, outputLen) => wrapXOFConstructorWithOpts((opts = {}) => new Keccak(blockLen, suffix, opts.dkLen === void 0 ? outputLen : opts.dkLen, true)), "genShake");
-var shake128 = genShake(31, 168, 128 / 8);
-var shake256 = genShake(31, 136, 256 / 8);
+var shake128 = /* @__PURE__ */ genShake(31, 168, 128 / 8);
+var shake256 = /* @__PURE__ */ genShake(31, 136, 256 / 8);
 
 // src/utils/chain.util.ts
-import { recoverPersonalSignature } from "@metamask/eth-sig-util";
-import { Interface, keccak256 } from "ethers";
+import { Interface, keccak256, verifyMessage, verifyTypedData } from "ethers";
 function recoverTypedSignatureV4(signObj, signature) {
-  return recoverTypedSignature({
-    data: signObj,
-    signature,
-    version: SignTypedDataVersion.V4
-  });
+  return verifyTypedData(signObj.domain, signObj.types, signObj.message, signature);
 }
 __name(recoverTypedSignatureV4, "recoverTypedSignatureV4");
 function formatAddress(address) {
@@ -430,10 +352,10 @@ function buildLoginSignMsg(nonce, tips) {
 __name(buildLoginSignMsg, "buildLoginSignMsg");
 function toEIP55(address) {
   const lowerAddress = `${address}`.toLowerCase().replace("0x", "");
-  var hash2 = bytesToHex(keccak_256(lowerAddress));
+  var hash = bytesToHex(keccak_256(lowerAddress));
   var ret = "0x";
   for (var i = 0; i < lowerAddress.length; i++) {
-    if (parseInt(hash2[i], 16) >= 8) {
+    if (parseInt(hash[i], 16) >= 8) {
       ret += lowerAddress[i].toUpperCase();
     } else {
       ret += lowerAddress[i];
@@ -446,11 +368,8 @@ function checkPersionalSign(message, address, signature) {
   if (!signature.startsWith("0x")) {
     signature = "0x" + signature;
   }
-  const recovered = recoverPersonalSignature({
-    data: message,
-    signature
-  });
-  return recovered === address;
+  const recovered = verifyMessage(message, signature);
+  return recovered.toLowerCase() === address.toLowerCase();
 }
 __name(checkPersionalSign, "checkPersionalSign");
 var getMethodSignature = /* @__PURE__ */ __name((abi) => {

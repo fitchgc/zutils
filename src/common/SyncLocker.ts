@@ -1,4 +1,4 @@
-import { singleton } from 'decorators/singleton'
+import { singleton } from '../decorators/singleton'
 import { ZError } from './ZError'
 
 interface IRequest {

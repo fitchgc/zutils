@@ -1,4 +1,4 @@
-import { ZError } from 'common/ZError'
+import { ZError } from '../common/ZError'
 
 export function generateHeader() {
   let random = function (start, end) {

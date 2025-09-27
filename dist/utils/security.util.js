@@ -3,7 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // src/utils/security.util.ts
 import crypto from "crypto";
-import CryptoJS from "crypto-js";
 
 // src/utils/string.util.ts
 var reNormalUUID = /^[0-9a-fA-F-]{36}$/;
@@ -111,24 +110,22 @@ function hmacSha256(str, key) {
 }
 __name(hmacSha256, "hmacSha256");
 var aesEncrypt = /* @__PURE__ */ __name((plaintText, key) => {
-  key = CryptoJS.SHA1(key).toString().substring(0, 16);
-  key = CryptoJS.enc.Base64.parse(key);
-  let encryptedData = CryptoJS.AES.encrypt(plaintText, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7
-  });
-  return encryptedData.toString(CryptoJS.format.Hex);
+  const keyHash = crypto.createHash("sha1").update(key).digest().subarray(0, 16);
+  const cipher = crypto.createCipheriv("aes-128-ecb", keyHash, null);
+  let encrypted = cipher.update(plaintText, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
 }, "aesEncrypt");
 var aesDecrypt = /* @__PURE__ */ __name((encryptedDataHexStr, key) => {
-  key = CryptoJS.SHA1(key).toString().substring(0, 16);
-  key = CryptoJS.enc.Base64.parse(key);
-  let encryptedHex = CryptoJS.enc.Hex.parse(encryptedDataHexStr);
-  let encryptedBase64 = CryptoJS.enc.Base64.stringify(encryptedHex);
-  var decryptedData = CryptoJS.AES.decrypt(encryptedBase64, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7
-  });
-  return decryptedData.toString(CryptoJS.enc.Utf8);
+  try {
+    const keyHash = crypto.createHash("sha1").update(key).digest().subarray(0, 16);
+    const decipher = crypto.createDecipheriv("aes-128-ecb", keyHash, null);
+    let decrypted = decipher.update(encryptedDataHexStr, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (error) {
+    return "";
+  }
 }, "aesDecrypt");
 function createSign(secretKey, paramStr, timestamp) {
   paramStr = `${paramStr}:${timestamp}:${secretKey}`;

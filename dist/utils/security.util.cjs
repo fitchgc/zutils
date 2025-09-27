@@ -50,7 +50,6 @@ __export(security_util_exports, {
 });
 module.exports = __toCommonJS(security_util_exports);
 var import_crypto = __toESM(require("crypto"), 1);
-var import_crypto_js = __toESM(require("crypto-js"), 1);
 
 // src/utils/string.util.ts
 var reNormalUUID = /^[0-9a-fA-F-]{36}$/;
@@ -158,24 +157,22 @@ function hmacSha256(str, key) {
 }
 __name(hmacSha256, "hmacSha256");
 var aesEncrypt = /* @__PURE__ */ __name((plaintText, key) => {
-  key = import_crypto_js.default.SHA1(key).toString().substring(0, 16);
-  key = import_crypto_js.default.enc.Base64.parse(key);
-  let encryptedData = import_crypto_js.default.AES.encrypt(plaintText, key, {
-    mode: import_crypto_js.default.mode.ECB,
-    padding: import_crypto_js.default.pad.Pkcs7
-  });
-  return encryptedData.toString(import_crypto_js.default.format.Hex);
+  const keyHash = import_crypto.default.createHash("sha1").update(key).digest().subarray(0, 16);
+  const cipher = import_crypto.default.createCipheriv("aes-128-ecb", keyHash, null);
+  let encrypted = cipher.update(plaintText, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
 }, "aesEncrypt");
 var aesDecrypt = /* @__PURE__ */ __name((encryptedDataHexStr, key) => {
-  key = import_crypto_js.default.SHA1(key).toString().substring(0, 16);
-  key = import_crypto_js.default.enc.Base64.parse(key);
-  let encryptedHex = import_crypto_js.default.enc.Hex.parse(encryptedDataHexStr);
-  let encryptedBase64 = import_crypto_js.default.enc.Base64.stringify(encryptedHex);
-  var decryptedData = import_crypto_js.default.AES.decrypt(encryptedBase64, key, {
-    mode: import_crypto_js.default.mode.ECB,
-    padding: import_crypto_js.default.pad.Pkcs7
-  });
-  return decryptedData.toString(import_crypto_js.default.enc.Utf8);
+  try {
+    const keyHash = import_crypto.default.createHash("sha1").update(key).digest().subarray(0, 16);
+    const decipher = import_crypto.default.createDecipheriv("aes-128-ecb", keyHash, null);
+    let decrypted = decipher.update(encryptedDataHexStr, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (error) {
+    return "";
+  }
 }, "aesDecrypt");
 function createSign(secretKey, paramStr, timestamp) {
   paramStr = `${paramStr}:${timestamp}:${secretKey}`;

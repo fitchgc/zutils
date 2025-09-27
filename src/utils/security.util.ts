@@ -1,5 +1,4 @@
 import crypto from 'crypto'
-import CryptoJS from 'crypto-js'
 import { compressUuid } from './string.util'
 import pkg from 'scrypt-js';
 const { syncScrypt } = pkg;
@@ -95,29 +94,33 @@ export function hmacSha256(str: string, key: any) {
   return data
 }
 
-export const aesEncrypt = (plaintText: string, key) => {
-  key = CryptoJS.SHA1(key).toString().substring(0, 16)
-  key = CryptoJS.enc.Base64.parse(key)
-  let encryptedData = CryptoJS.AES.encrypt(plaintText, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7,
-  })
-
-  return encryptedData.toString(CryptoJS.format.Hex)
+export const aesEncrypt = (plaintText: string, key: string) => {
+  // Generate key using SHA1, then take first 16 bytes (128 bits)
+  const keyHash = crypto.createHash('sha1').update(key).digest().subarray(0, 16)
+  
+  // Use AES-128-ECB mode (no IV needed for ECB mode)
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyHash, null)
+  let encrypted = cipher.update(plaintText, 'utf8', 'hex')
+  encrypted += cipher.final('hex')
+  
+  return encrypted
 }
 
-export const aesDecrypt = (encryptedDataHexStr, key) => {
-  key = CryptoJS.SHA1(key).toString().substring(0, 16)
-  key = CryptoJS.enc.Base64.parse(key)
-  let encryptedHex = CryptoJS.enc.Hex.parse(encryptedDataHexStr)
-  let encryptedBase64 = CryptoJS.enc.Base64.stringify(encryptedHex)
-
-  var decryptedData = CryptoJS.AES.decrypt(encryptedBase64, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7,
-  })
-
-  return decryptedData.toString(CryptoJS.enc.Utf8)
+export const aesDecrypt = (encryptedDataHexStr: string, key: string) => {
+  try {
+    // Generate key using SHA1, then take first 16 bytes (128 bits)
+    const keyHash = crypto.createHash('sha1').update(key).digest().subarray(0, 16)
+    
+    // Use AES-128-ECB mode (no IV needed for ECB mode)
+    const decipher = crypto.createDecipheriv('aes-128-ecb', keyHash, null)
+    let decrypted = decipher.update(encryptedDataHexStr, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    
+    return decrypted
+  } catch (error) {
+    // Return empty string or handle error gracefully when decryption fails
+    return ''
+  }
 }
 
 export function createSign(secretKey: string, paramStr: string, timestamp: number) {

@@ -21,8 +21,8 @@ declare function sha512(password: string, salt: string): {
 };
 declare function sha3_256(str: string): string;
 declare function hmacSha256(str: string, key: any): string;
-declare const aesEncrypt: (plaintText: string, key: any) => string;
-declare const aesDecrypt: (encryptedDataHexStr: any, key: any) => string;
+declare const aesEncrypt: (plaintText: string, key: string) => string;
+declare const aesDecrypt: (encryptedDataHexStr: string, key: string) => string;
 declare function createSign(secretKey: string, paramStr: string, timestamp: number): string;
 declare function checkSign({ secretKey, data, sign, signKeys, }: {
     secretKey: string;

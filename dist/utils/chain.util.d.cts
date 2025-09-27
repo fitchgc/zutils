@@ -1,5 +1,16 @@
-import { AbiItem } from 'web3-utils';
-
+interface AbiInput {
+    name: string;
+    type: string;
+    indexed?: boolean;
+    components?: AbiInput[];
+}
+interface AbiItem {
+    type: string;
+    name?: string;
+    inputs?: AbiInput[];
+    outputs?: AbiInput[];
+    anonymous?: boolean;
+}
 declare function recoverTypedSignatureV4(signObj: any, signature: string): string;
 declare function formatAddress(address: string): string;
 declare function buildLoginSignMsg(nonce: string, tips: string): {

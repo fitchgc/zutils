@@ -1,5 +1,5 @@
 import { renderFromTokenMinimalUnit } from './number.util'
-import { asciiToHex } from 'web3-utils'
+import { randomBytes } from 'crypto'
 
 /**
  * Removes IPFS protocol prefix from input string.
@@ -116,10 +116,9 @@ export function formatMoney(balance: number | string, symbol: string) {
 
 /**
  * 生成随机的bytes32的字符串
- * @returns
+ * @returns A hex string representing 32 random bytes (64 characters + '0x' prefix)
  */
 export function generateRandomBytes32() {
-  const v1 = (Math.random() * 9000000 + 1000000) | 0
-  const v2 = (Math.random() * 900000 + 100000) | 0
-  return asciiToHex(v1 + '' + v2)
+  // Generate 32 random bytes and convert to hex string with '0x' prefix
+  return '0x' + randomBytes(32).toString('hex')
 }

@@ -6,10 +6,10 @@ Integrates some commonly used utility classes for convenient development.
 
 ***Important:: TypeScript version must be higher than 4.7!!***
 ```bash
-git submodule add --force git@github.com:fitchgc/zutils.git ./packages/zutils
-yarn add file:packages/zutils
+yarn add zutils@git+https://github.com/fitchgc/zutils.git
+yarn add zutils@git+https://github.com/fitchgc/zutils.git#tagname
 # or
-yarn add link:packages/zutils
+npm install zutils@git+https://github.com/fitchgc/zutils.git
 ```
 
 ```typescript

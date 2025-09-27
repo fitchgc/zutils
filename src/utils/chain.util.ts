@@ -1,11 +1,24 @@
 import { recoverTypedSignature, SignTypedDataVersion } from '@metamask/eth-sig-util'
-//@ts-ignore
-import { keccak256, _jsonInterfaceMethodToString, AbiInput, AbiItem } from 'web3-utils'
 import { bytesToHex } from '@noble/hashes/utils'
 import { keccak_256 } from '@noble/hashes/sha3'
 import { recoverPersonalSignature } from '@metamask/eth-sig-util'
-import Web3 from 'web3'
-import web3abi from 'web3-eth-abi'
+import { Interface, LogDescription, keccak256 } from 'ethers'
+
+// Define ABI types locally since we're removing web3-utils
+interface AbiInput {
+  name: string
+  type: string
+  indexed?: boolean
+  components?: AbiInput[]
+}
+
+interface AbiItem {
+  type: string
+  name?: string
+  inputs?: AbiInput[]
+  outputs?: AbiInput[]
+  anonymous?: boolean
+}
 
 export function recoverTypedSignatureV4(signObj: any, signature: string) {
   return recoverTypedSignature({
@@ -79,8 +92,24 @@ export function checkPersionalSign(message: string, address: string, signature: 
   return recovered === address
 }
 
+// Helper function to generate function signature string like _jsonInterfaceMethodToString
+const getMethodSignature = (abi: AbiItem): string => {
+  if (abi.type === 'function' || abi.type === 'event') {
+    const inputs = abi.inputs || []
+    const inputTypes = inputs.map(input => {
+      if (input.type === 'tuple' && input.components) {
+        const componentTypes = input.components.map(comp => comp.type).join(',')
+        return `(${componentTypes})`
+      }
+      return input.type
+    })
+    return `${abi.name}(${inputTypes.join(',')})`
+  }
+  return ''
+}
+
 export const getTopics = (abi: AbiItem) => {
-  return keccak256(_jsonInterfaceMethodToString(abi))
+  return keccak256(getMethodSignature(abi))
 }
 
 const parseOne = (input: AbiInput, value: any) => {
@@ -109,13 +138,28 @@ const parseOne = (input: AbiInput, value: any) => {
 }
 
 export const decodeEvent = (abi: AbiItem, eventData: { data: string; topics: string[] }) => {
-  const abiInputs = [...abi.inputs] as AbiInput[] // Create mutable copy
-  let result = web3abi.decodeLog(abiInputs, eventData.data, eventData.topics.slice(1))
+  // Create interface from the single event ABI
+  const iface = new Interface([abi])
+  
+  // Parse the log using ethers v6
+  const parsedLog: LogDescription = iface.parseLog({
+    data: eventData.data,
+    topics: eventData.topics
+  })
+  
+  if (!parsedLog) {
+    throw new Error('Unable to parse event data')
+  }
+  
+  // Convert the parsed result to the expected format
   let decodedData: any = {}
+  const abiInputs = [...abi.inputs] as AbiInput[]
+  
   for (let i = 0; i < abiInputs.length; i++) {
     const input: AbiInput = abiInputs[i]
-    const value = result[i]
+    const value = parsedLog.args[i]
     decodedData[input.name] = parseOne(input, value)
   }
+  
   return decodedData
 }

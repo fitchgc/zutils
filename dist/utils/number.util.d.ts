@@ -1,15 +1,14 @@
-import { BN } from 'ethereumjs-util';
-
+type NumberInput = number | string | bigint;
 /**
  * Converts some token minimal unit to render format string, showing 5 decimals
  *
- * @param {Number|String|BN} tokenValue - Token value to convert
+ * @param {Number|String} tokenValue - Token value to convert
  * @param {Number} decimals - Token decimals to convert
  * @param {Number} decimalsToShow - Decimals to 5
  * @returns {String} - Number of token minimal unit, in render format
  * If value is less than 5 precision decimals will show '< 0.00001'
  */
-declare function renderFromTokenMinimalUnit(tokenValue: any, decimals: any, decimalsToShow?: number): any;
+declare function renderFromTokenMinimalUnit(tokenValue: NumberInput, decimals: number, decimalsToShow?: number): string;
 /**
  * Converts token minimal unit to readable string value
  *
@@ -17,38 +16,31 @@ declare function renderFromTokenMinimalUnit(tokenValue: any, decimals: any, deci
  * @param {string} decimals - Token decimals to convert
  * @returns {string} - String containing the new number
  */
-declare function fromTokenMinimalUnit(minimalInput: any, decimals: any): string;
+declare function fromTokenMinimalUnit(minimalInput: NumberInput, decimals: number): string;
 /**
  * Converts wei to render format string, showing 5 decimals
  *
- * @param {Number|String|BN} value - Wei to convert
+ * @param {Number|String} value - Wei to convert
  * @param {Number} decimalsToShow - Decimals to 5
  * @returns {String} - Number of token minimal unit, in render format
  * If value is less than 5 precision decimals will show '< 0.00001'
  */
-declare function renderFromWei(value: any, decimalsToShow?: number): string;
+declare function renderFromWei(value: NumberInput, decimalsToShow?: number): string;
 /**
- * Converts token BN value to hex string number to be sent
+ * Converts token value to hex string number to be sent
  *
- * @param {Object} value - BN instance to convert
+ * @param {number|string} value - Token value to convert
  * @param {number} decimals - Decimals to be considered on the conversion
  * @returns {string} - String of the hex token value
  */
-declare function calcTokenValueToSend(value: any, decimals: any): string | 0;
+declare function calcTokenValueToSend(value: NumberInput, decimals: number): string;
 /**
  * Determines if a string is a valid decimal
  *
  * @param {string} value - String to check
  * @returns {boolean} - True if the string is a valid decimal
  */
-declare function isDecimal(value: any): boolean;
-/**
- * Creates a BN object from a string
- *
- * @param {string} value - Some numeric value represented as a string
- * @returns {Object} - BN instance
- */
-declare function toBN(value: any): BN;
+declare function isDecimal(value: string): boolean;
 /**
  * Prefixes a hex string with '0x' or '-0x' and returns it. Idempotent.
  *
@@ -57,22 +49,14 @@ declare function toBN(value: any): BN;
  */
 declare const addHexPrefix: (str: string) => string;
 /**
- * Wraps 'numberToBN' method to avoid potential undefined and decimal values
- *
- * @param {number|string} value -  number
- * @returns {Object} - The converted value as BN instance
- */
-declare function safeNumberToBN(value: number | string): BN;
-/**
  * Performs a fast string split and returns the first item of the string based on the divider provided
  *
  * @param {number|string} value -  number/string to be splitted
  * @param {string} divider -  string value to use to split the string (default '.')
  * @returns {string} - the selected splitted element
  */
-declare function fastSplit(value: any, divider?: string): any;
+declare function fastSplit(value: number | string, divider?: string): string;
 declare function stripHexPrefix(str: string): string;
-declare function numberToBN(arg: any): BN;
 /**
  * Converts a number from the base specified by `base` to the base specified by `to`.
  * @param {string} numStr - The number string to be converted.
@@ -87,4 +71,4 @@ declare function convert({ numStr, base, to, alphabet, }: {
     alphabet?: string;
 }): string;
 
-export { addHexPrefix, calcTokenValueToSend, convert, fastSplit, fromTokenMinimalUnit, isDecimal, numberToBN, renderFromTokenMinimalUnit, renderFromWei, safeNumberToBN, stripHexPrefix, toBN };
+export { addHexPrefix, calcTokenValueToSend, convert, fastSplit, fromTokenMinimalUnit, isDecimal, renderFromTokenMinimalUnit, renderFromWei, stripHexPrefix };

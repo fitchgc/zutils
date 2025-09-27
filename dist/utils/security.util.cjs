@@ -82,7 +82,7 @@ __name(compressHex, "compressHex");
 
 // src/utils/security.util.ts
 var import_scrypt_js = __toESM(require("scrypt-js"), 1);
-var import_web3_utils = require("web3-utils");
+var import_ethers = require("ethers");
 var import_argon2 = __toESM(require("argon2"), 1);
 var { syncScrypt } = import_scrypt_js.default;
 function genRandomString(length) {
@@ -244,7 +244,7 @@ var decrypt = /* @__PURE__ */ __name(async function(v3Keystore, password, nonStr
     }
   }
   var ciphertext = Buffer.from(cryptoObj.ciphertext, "hex");
-  var mac = (0, import_web3_utils.sha3)(Uint8Array.from(Buffer.from([
+  var mac = (0, import_ethers.keccak256)(Uint8Array.from(Buffer.from([
     ...derivedKey.slice(16, 32),
     ...ciphertext
   ]))).replace("0x", "");
@@ -299,7 +299,7 @@ var encrypt = /* @__PURE__ */ __name(async function(privateKey, password, option
     ...cipher.update(Uint8Array.from(Buffer.from(privateKey.replace("0x", ""), "hex"))),
     ...cipher.final()
   ]);
-  var mac = (0, import_web3_utils.sha3)(Uint8Array.from(Buffer.from([
+  var mac = (0, import_ethers.keccak256)(Uint8Array.from(Buffer.from([
     ...derivedKey.slice(16, 32),
     ...ciphertext
   ]))).replace("0x", "");

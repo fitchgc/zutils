@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import { compressUuid } from './string.util'
 import pkg from 'scrypt-js';
 const { syncScrypt } = pkg;
-import { sha3 } from 'web3-utils';
+import { keccak256 } from 'ethers';
 import argon2 from 'argon2';
 
 /**
@@ -211,7 +211,7 @@ const decrypt = async function (v3Keystore: any, password: string, nonStrict?: b
     }
   }
   var ciphertext = Buffer.from(cryptoObj.ciphertext, 'hex');
-  var mac = sha3(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
+  var mac = keccak256(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
   if (mac !== cryptoObj.mac) {
       throw new Error('Key derivation failed - possibly wrong password');
   }
@@ -261,7 +261,7 @@ const encrypt = async function (privateKey: string, password: string, options?: 
       ...cipher.update(Uint8Array.from(Buffer.from(privateKey.replace('0x', ''), 'hex'))),
       ...cipher.final()
   ]);
-  var mac = sha3(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
+  var mac = keccak256(Uint8Array.from(Buffer.from([...derivedKey.slice(16, 32), ...ciphertext]))).replace('0x', '');
   return {
     ciphertext: ciphertext.toString('hex'),
     cipherparams: {

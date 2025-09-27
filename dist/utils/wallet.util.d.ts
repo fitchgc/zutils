@@ -44,7 +44,7 @@ declare function formatAddress(address: string): string;
 declare function formatMoney(balance: number | string, symbol: string): string;
 /**
  * 生成随机的bytes32的字符串
- * @returns
+ * @returns A hex string representing 32 random bytes (64 characters + '0x' prefix)
  */
 declare function generateRandomBytes32(): string;
 

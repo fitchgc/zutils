@@ -86,18 +86,15 @@ export function checkPersionalSign(message: string, address: string, signature: 
   return recovered.toLowerCase() === address.toLowerCase()
 }
 
-// Helper function to generate function signature string like _jsonInterfaceMethodToString
-const getMethodSignature = (abi: AbiItem): string => {
+export const getTopics = (abi: AbiItem) => {
   const iface = new Interface([abi])
   if (abi.type === 'event') {
-    return iface.getEvent(abi.name).format('minimal')
+    return iface.getEvent(abi.name).topicHash
   } else if (abi.type === 'function') {
-    return iface.getFunction(abi.name).format('minimal')
+    const methodSignature = iface.getFunction(abi.name).format('minimal')
+    return keccak256(Buffer.from(methodSignature))
   }
-}
-
-export const getTopics = (abi: AbiItem) => {
-  return keccak256(Buffer.from(getMethodSignature(abi)))
+  return ''
 }
 
 const parseOne = (input: AbiInput, value: any) => {

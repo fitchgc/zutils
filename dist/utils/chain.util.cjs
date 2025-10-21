@@ -401,18 +401,17 @@ function checkPersionalSign(message, address, signature) {
   return recovered.toLowerCase() === address.toLowerCase();
 }
 __name(checkPersionalSign, "checkPersionalSign");
-var getMethodSignature = /* @__PURE__ */ __name((abi) => {
+var getTopics = /* @__PURE__ */ __name((abi) => {
   const iface = new import_ethers.Interface([
     abi
   ]);
   if (abi.type === "event") {
-    return iface.getEvent(abi.name).format("minimal");
+    return iface.getEvent(abi.name).topicHash;
   } else if (abi.type === "function") {
-    return iface.getFunction(abi.name).format("minimal");
+    const methodSignature = iface.getFunction(abi.name).format("minimal");
+    return (0, import_ethers.keccak256)(Buffer.from(methodSignature));
   }
-}, "getMethodSignature");
-var getTopics = /* @__PURE__ */ __name((abi) => {
-  return (0, import_ethers.keccak256)(Buffer.from(getMethodSignature(abi)));
+  return "";
 }, "getTopics");
 var parseOne = /* @__PURE__ */ __name((input, value) => {
   if (input.type === "tuple[]") {

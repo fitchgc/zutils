@@ -103,7 +103,7 @@ const getMethodSignature = (abi: AbiItem): string => {
 }
 
 export const getTopics = (abi: AbiItem) => {
-  return keccak256(getMethodSignature(abi))
+  return keccak256(Buffer.from(getMethodSignature(abi)))
 }
 
 const parseOne = (input: AbiInput, value: any) => {

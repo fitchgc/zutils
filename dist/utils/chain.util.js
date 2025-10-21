@@ -387,7 +387,7 @@ var getMethodSignature = /* @__PURE__ */ __name((abi) => {
   return "";
 }, "getMethodSignature");
 var getTopics = /* @__PURE__ */ __name((abi) => {
-  return keccak256(getMethodSignature(abi));
+  return keccak256(Buffer.from(getMethodSignature(abi)));
 }, "getTopics");
 var parseOne = /* @__PURE__ */ __name((input, value) => {
   if (input.type === "tuple[]") {

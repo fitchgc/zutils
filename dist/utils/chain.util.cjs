@@ -416,7 +416,7 @@ var getMethodSignature = /* @__PURE__ */ __name((abi) => {
   return "";
 }, "getMethodSignature");
 var getTopics = /* @__PURE__ */ __name((abi) => {
-  return (0, import_ethers.keccak256)(getMethodSignature(abi));
+  return (0, import_ethers.keccak256)(Buffer.from(getMethodSignature(abi)));
 }, "getTopics");
 var parseOne = /* @__PURE__ */ __name((input, value) => {
   if (input.type === "tuple[]") {

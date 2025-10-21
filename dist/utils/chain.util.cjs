@@ -402,18 +402,14 @@ function checkPersionalSign(message, address, signature) {
 }
 __name(checkPersionalSign, "checkPersionalSign");
 var getMethodSignature = /* @__PURE__ */ __name((abi) => {
-  if (abi.type === "function" || abi.type === "event") {
-    const inputs = abi.inputs || [];
-    const inputTypes = inputs.map((input) => {
-      if (input.type === "tuple" && input.components) {
-        const componentTypes = input.components.map((comp) => comp.type).join(",");
-        return `(${componentTypes})`;
-      }
-      return input.type;
-    });
-    return `${abi.name}(${inputTypes.join(",")})`;
+  const iface = new import_ethers.Interface([
+    abi
+  ]);
+  if (abi.type === "event") {
+    return iface.getEvent(abi.name).format("minimal");
+  } else if (abi.type === "function") {
+    return iface.getFunction(abi.name).format("minimal");
   }
-  return "";
 }, "getMethodSignature");
 var getTopics = /* @__PURE__ */ __name((abi) => {
   return (0, import_ethers.keccak256)(Buffer.from(getMethodSignature(abi)));
@@ -439,7 +435,7 @@ var parseOne = /* @__PURE__ */ __name((input, value) => {
     if (input.type === "address") {
       return value.toLowerCase();
     }
-    return value;
+    return value.toString();
   }
 }, "parseOne");
 var decodeEvent = /* @__PURE__ */ __name((abi, eventData) => {

@@ -88,18 +88,12 @@ export function checkPersionalSign(message: string, address: string, signature: 
 
 // Helper function to generate function signature string like _jsonInterfaceMethodToString
 const getMethodSignature = (abi: AbiItem): string => {
-  if (abi.type === 'function' || abi.type === 'event') {
-    const inputs = abi.inputs || []
-    const inputTypes = inputs.map(input => {
-      if (input.type === 'tuple' && input.components) {
-        const componentTypes = input.components.map(comp => comp.type).join(',')
-        return `(${componentTypes})`
-      }
-      return input.type
-    })
-    return `${abi.name}(${inputTypes.join(',')})`
+  const iface = new Interface([abi])
+  if (abi.type === 'event') {
+    return iface.getEvent(abi.name).format('minimal')
+  } else if (abi.type === 'function') {
+    return iface.getFunction(abi.name).format('minimal')
   }
-  return ''
 }
 
 export const getTopics = (abi: AbiItem) => {
@@ -126,8 +120,8 @@ const parseOne = (input: AbiInput, value: any) => {
   } else {
     if (input.type === 'address') {
       return value.toLowerCase()
-    }
-    return value
+    } 
+    return value.toString()
   }
 }
 

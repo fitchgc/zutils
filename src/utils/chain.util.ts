@@ -97,28 +97,77 @@ export const getTopics = (abi: AbiItem) => {
   return ''
 }
 
-const parseOne = (input: AbiInput, value: any) => {
+const parseOne = (input: AbiInput, value: any, depth: number = 0): any => {
+  // Prevent stack overflow from deeply nested structures
+  const MAX_DEPTH = 50
+  if (depth > MAX_DEPTH) {
+    throw new Error(`Maximum recursion depth (${MAX_DEPTH}) exceeded in parseOne`)
+  }
+
+  // Handle null/undefined values
+  if (value === null || value === undefined) {
+    return value
+  }
+
   if (input.type === 'tuple[]') {
+    // Validate that value is an array
+    if (!Array.isArray(value)) {
+      throw new Error(`Expected array for tuple[] type, got ${typeof value}`)
+    }
+
+    // Validate components exist
+    if (!input.components || input.components.length === 0) {
+      throw new Error('tuple[] type requires components definition')
+    }
+
     return value.map((item: any) => {
-      let itemData = {}
-      for (let j = 0; j < input.components.length; j++) {
-        const component = input.components[j]
-        itemData[component.name] = parseOne(component, item[j])
+      const itemData: Record<string, any> = {}
+      for (let j = 0; j < input.components!.length; j++) {
+        const component = input.components![j]
+        const itemValue = Array.isArray(item) ? item[j] : item[component.name]
+        itemData[component.name] = parseOne(component, itemValue, depth + 1)
       }
       return itemData
     })
   } else if (input.type === 'tuple') {
-    let itemData = {}
+    // Validate components exist
+    if (!input.components || input.components.length === 0) {
+      throw new Error('tuple type requires components definition')
+    }
+
+    const itemData: Record<string, any> = {}
     for (let j = 0; j < input.components.length; j++) {
       const component = input.components[j]
-      itemData[component.name] = parseOne(component, value[j])
+      const itemValue = Array.isArray(value) ? value[j] : value[component.name]
+      itemData[component.name] = parseOne(component, itemValue, depth + 1)
     }
     return itemData
   } else {
+    // Handle primitive and array types
+    // Check if it's an array type (e.g., uint256[], address[], bytes32[])
+    if (input.type.endsWith('[]') && input.type !== 'tuple[]') {
+      if (!Array.isArray(value)) {
+        throw new Error(`Expected array for ${input.type}, got ${typeof value}`)
+      }
+      const baseType = input.type.slice(0, -2)
+      const baseInput: AbiInput = { ...input, type: baseType }
+      return value.map((item: any) => parseOne(baseInput, item, depth + 1))
+    }
+
+    // Handle specific types
     if (input.type === 'address') {
       return value.toLowerCase()
-    } 
-    return value.toString()
+    } else if (input.type === 'bool') {
+      return Boolean(value)
+    } else if (input.type.startsWith('bytes')) {
+      // Keep bytes as hex string
+      return typeof value === 'string' ? value : value.toString()
+    } else if (input.type.startsWith('uint') || input.type.startsWith('int')) {
+      // Keep as bigint or string to preserve precision
+      return typeof value === 'bigint' ? value.toString() : value.toString()
+    } else {
+      return value.toString()
+    }
   }
 }
 

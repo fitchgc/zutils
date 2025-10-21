@@ -384,28 +384,64 @@ var getTopics = /* @__PURE__ */ __name((abi) => {
   }
   return "";
 }, "getTopics");
-var parseOne = /* @__PURE__ */ __name((input, value) => {
+var parseOne = /* @__PURE__ */ __name((input, value, depth = 0) => {
+  const MAX_DEPTH = 50;
+  if (depth > MAX_DEPTH) {
+    throw new Error(`Maximum recursion depth (${MAX_DEPTH}) exceeded in parseOne`);
+  }
+  if (value === null || value === void 0) {
+    return value;
+  }
   if (input.type === "tuple[]") {
+    if (!Array.isArray(value)) {
+      throw new Error(`Expected array for tuple[] type, got ${typeof value}`);
+    }
+    if (!input.components || input.components.length === 0) {
+      throw new Error("tuple[] type requires components definition");
+    }
     return value.map((item) => {
-      let itemData = {};
+      const itemData = {};
       for (let j = 0; j < input.components.length; j++) {
         const component = input.components[j];
-        itemData[component.name] = parseOne(component, item[j]);
+        const itemValue = Array.isArray(item) ? item[j] : item[component.name];
+        itemData[component.name] = parseOne(component, itemValue, depth + 1);
       }
       return itemData;
     });
   } else if (input.type === "tuple") {
-    let itemData = {};
+    if (!input.components || input.components.length === 0) {
+      throw new Error("tuple type requires components definition");
+    }
+    const itemData = {};
     for (let j = 0; j < input.components.length; j++) {
       const component = input.components[j];
-      itemData[component.name] = parseOne(component, value[j]);
+      const itemValue = Array.isArray(value) ? value[j] : value[component.name];
+      itemData[component.name] = parseOne(component, itemValue, depth + 1);
     }
     return itemData;
   } else {
+    if (input.type.endsWith("[]") && input.type !== "tuple[]") {
+      if (!Array.isArray(value)) {
+        throw new Error(`Expected array for ${input.type}, got ${typeof value}`);
+      }
+      const baseType = input.type.slice(0, -2);
+      const baseInput = {
+        ...input,
+        type: baseType
+      };
+      return value.map((item) => parseOne(baseInput, item, depth + 1));
+    }
     if (input.type === "address") {
       return value.toLowerCase();
+    } else if (input.type === "bool") {
+      return Boolean(value);
+    } else if (input.type.startsWith("bytes")) {
+      return typeof value === "string" ? value : value.toString();
+    } else if (input.type.startsWith("uint") || input.type.startsWith("int")) {
+      return typeof value === "bigint" ? value.toString() : value.toString();
+    } else {
+      return value.toString();
     }
-    return value.toString();
   }
 }, "parseOne");
 var decodeEvent = /* @__PURE__ */ __name((abi, eventData) => {
